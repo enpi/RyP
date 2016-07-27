@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="fastadapter-1.5.8">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.mikepenz/fastadapter/1.5.8/res" />
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.mikepenz/fastadapter/1.5.8/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.mikepenz/fastadapter/1.5.8/ee81ba89d05c913356158858f484609776cbfb00/fastadapter-1.5.8-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

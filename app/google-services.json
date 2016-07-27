@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "846239848996",
+    "firebase_url": "https://rateyourteacher-1257.firebaseio.com",
+    "project_id": "rateyourteacher-1257",
+    "storage_bucket": "rateyourteacher-1257.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846239848996:android:291b4b3379a3b8bd",
+        "android_client_info": {
+          "package_name": "com.codamasters.ryp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "846239848996-qfrs9fo2ei0m9dav265hde5q2s2di9so.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.codamasters.ryp",
+            "certificate_hash": "B38B8DD360146DB57FADB178167D6CF67C561823"
+          }
+        },
+        {
+          "client_id": "846239848996-5jce04hmlt68tbchvi54hdst9no94h0u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.codamasters.ryp",
+            "certificate_hash": "E85220022389A5E1BC2BD9E45B0E278938B456F1"
+          }
+        },
+        {
+          "client_id": "846239848996-tiqejvsrlge14dj2vrgqqokgm25ekpp8.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "846239848996-m1ogkn6apntb44g155m4b6tigpoflilu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARXsTMd0EjwYDg2dwIxv7EARXx9Y20jes"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
