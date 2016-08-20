@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.codamasters.ryp.UI.MainActivity;
+import com.codamasters.ryp.UI.ranking.RankingPrimaryActivity;
 
 /**
  * Created by Juan on 30/03/2016.
@@ -30,7 +30,7 @@ public class LoginAsynkTask extends AsyncTask<Context, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        context.startActivity(new Intent(context, MainActivity.class));
+        context.startActivity(new Intent(context, RankingPrimaryActivity.class));
         Log.d("user", fullName);
     }
 

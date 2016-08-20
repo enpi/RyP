@@ -1,14 +1,31 @@
 <resources>
     <string name="app_name">RyP</string>
     <string name="title_activity_ranking_primary">RankingPrimaryActivity</string>
+    <string name="title_activity_ranking_university">RankingUniversityActivity</string>
+
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_activity_settings">Settings</string>
 
-    
+
     <string name="facebook_app_id">1729489167324954</string>
-    
-    
+    <string name="twitter_consumer_key">TE9ZI2XjvASkSiujiwss8hdmq</string>
+    <string name="twitter_consumer_secret">WIqpDcGFpsPsAiAsQ21TTKaeWs6tfdLXezNryfFDoPv0xwcltX</string>
+
+    <string name="title_aptitude_1">Capacidad de comunicación</string>
+    <string name="title_aptitude_2">Implicación con el alumnado</string>
+    <string name="title_aptitude_3">Motivación</string>
+    <string name="title_aptitude_4">Accesibilidad</string>
+    <string name="title_aptitude_5">Flexibilidad</string>
+
+
+    <string name="info_aptitude_1">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
+    <string name="info_aptitude_2">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
+    <string name="info_aptitude_3">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
+    <string name="info_aptitude_4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
+    <string name="info_aptitude_5">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
+
+
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->

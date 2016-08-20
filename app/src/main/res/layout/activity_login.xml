@@ -6,12 +6,12 @@
     android:layout_height="match_parent"
     android:id="@+id/activity_login"
     android:background="@color/colorPrimaryDark"
-    tools:context=".UI.LoginActivity">
+    tools:context=".UI.login.LoginActivity">
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/header"
+        android:src="@drawable/app_icon"
         android:layout_gravity="center"
         android:paddingTop="20dp"
         android:id="@+id/icon_teacher"
@@ -25,34 +25,39 @@
         android:layout_weight="1"
         android:gravity="center">
 
-        <Button
+
+        <com.twitter.sdk.android.core.identity.TwitterLoginButton
             android:id="@+id/twitter_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#55acee"
-            android:padding="10dp"
-            android:text="Login with Twitter"
-            android:textColor="@android:color/white"
-            />
+            android:layout_gravity="center_horizontal"
+            android:textSize="15dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginLeft="30dp"/>
 
         <com.facebook.login.widget.LoginButton
             android:id="@+id/facebook_button"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="30dp" />
+            android:textSize="15dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginLeft="30dp"/>
 
 
-        <Button
+        <com.google.android.gms.common.SignInButton
             android:id="@+id/google_plus_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#c83929"
-            android:padding="10dp"
-            android:text="Login with Google Plus"
-            android:textColor="@android:color/white"
-            />
+            android:layout_gravity="center_horizontal"
+            android:textSize="15dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginLeft="30dp" />
+
 
         </LinearLayout>
 

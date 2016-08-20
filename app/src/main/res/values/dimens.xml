@@ -4,4 +4,15 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
+
+
+    <dimen name="image_login">160dp</dimen>
+    <dimen name="text_login">55dp</dimen>
+
+
+    <dimen name="default_input_text_size">18sp</dimen>
+    <dimen name="default_message_text_size">16sp</dimen>
+    <dimen name="default_timestamp_text_size">12sp</dimen>
+
+
 </resources>

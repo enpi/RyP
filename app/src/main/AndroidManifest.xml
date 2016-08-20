@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.codamasters.ryp">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".app.RyPApplication"
@@ -11,47 +11,82 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-
-
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
-
-
-        <activity android:name="com.facebook.FacebookActivity"
-            android:configChanges=
-                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:label="@string/app_name" />
-
-        <activity android:name=".UI.LoginActivity">
-
-        </activity>
-        <activity android:name=".UI.MainActivity" />
-
+        android:theme="@style/AppTheme"
+        tools:replace="android:icon,android:theme">
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="9f0b0371976fee718f771bded089ace744e8cb9a" />
 
         <activity
-            android:name=".UI.RankingPrimaryActivity"
-            android:label="@string/title_activity_ranking_primary"
-            android:theme="@style/AppTheme">
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity android:name=".UI.login.LoginActivity">
 
+
+
+        </activity>
+        <activity
+            android:name=".UI.ranking.RankingPrimaryActivity"
+            android:label="@string/title_activity_ranking_primary"
+            android:theme="@style/AppTheme"></activity>
+        <activity
+            android:name=".UI.ranking.RankingUniversityActivity"
+            android:label="@string/title_activity_ranking_university"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UI.ranking.RankingPrimaryActivity" />
+        </activity>
+        <activity
+            android:name=".UI.ranking.RankingDegreeActivity"
+            android:label="@string/title_activity_ranking_university"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UI.ranking.RankingPrimaryActivity" />
+        </activity>
+        <activity
+            android:name=".UI.professor.ProfessorActivity"
+            android:label="Professor"
+            android:theme="@style/SettingTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UI.ranking.RankingPrimaryActivity" />
+        </activity>
+        <activity
+            android:name=".UI.professor.ProfessorCommentActivity"
+            android:label="Professor"
+            android:theme="@style/SettingTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UI.professor.ProfessorActivity" />
+        </activity>
+        <activity
+            android:name=".UI.settings.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/SettingTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UI.ranking.RankingPrimaryActivity" />
+        </activity>
+        <activity
+            android:name=".UI.professor.ProfessorStatsActivity"
+            android:theme="@style/SettingTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UI.professor.ProfessorActivity" />
+        </activity>
+        <activity android:name=".UI.search.SearchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-        </activity>
-
-
-
-        <activity
-            android:name=".UI.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:theme="@style/SettingTheme">
-
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".UI.RankingPrimaryActivity" />
 
         </activity>
     </application>

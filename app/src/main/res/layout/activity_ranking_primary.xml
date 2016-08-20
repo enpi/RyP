@@ -7,24 +7,16 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    tools:context="com.codamasters.ryp.UI.RankingPrimaryActivity">
-
-
-    <android.support.design.widget.CollapsingToolbarLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+    tools:context=".UI.ranking.RankingPrimaryActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
+        app:layout_collapseMode="pin"
         app:layout_scrollFlags="scroll|enterAlways"
         app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-
-
-    </android.support.design.widget.CollapsingToolbarLayout>
 
     <android.support.design.widget.TabLayout
         android:id="@+id/tl_activity_main"
