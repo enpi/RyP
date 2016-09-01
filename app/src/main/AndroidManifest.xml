@@ -5,6 +5,13 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!--
+         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+         Google Maps Android API v2, but you must specify either coarse or fine
+         location permissions for the 'MyLocation' functionality. 
+    -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:name=".app.RyPApplication"
         android:allowBackup="true"
@@ -26,14 +33,16 @@
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity android:name=".UI.login.LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-
-
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".UI.ranking.RankingPrimaryActivity"
             android:label="@string/title_activity_ranking_primary"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".UI.ranking.RankingUniversityActivity"
             android:label="@string/title_activity_ranking_university"
@@ -43,12 +52,28 @@
                 android:value=".UI.ranking.RankingPrimaryActivity" />
         </activity>
         <activity
+            android:name=".UI.university.UniversityCommentActivity"
+            android:label="University"
+            android:theme="@style/SettingTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UI.ranking.RankingUniversityActivity" />
+        </activity>
+        <activity
             android:name=".UI.ranking.RankingDegreeActivity"
-            android:label="@string/title_activity_ranking_university"
+            android:label="@string/title_activity_ranking_degree"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".UI.ranking.RankingPrimaryActivity" />
+        </activity>
+        <activity
+            android:name=".UI.degree.DegreeCommentActivity"
+            android:label="Degree"
+            android:theme="@style/SettingTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UI.ranking.RankingDegreeActivity" />
         </activity>
         <activity
             android:name=".UI.professor.ProfessorActivity"
@@ -81,13 +106,41 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".UI.professor.ProfessorActivity" />
         </activity>
-        <activity android:name=".UI.search.SearchActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <activity
+            android:name=".UI.professor.ProfessorWebViewActivity"
+            android:theme="@style/SettingTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UI.professor.ProfessorActivity" />
+        </activity>
+        <activity android:name=".UI.search.SearchActivity" />
+        <activity
+            android:name=".UI.professor.ProfessorAdvancedStatsActivity"
+            android:theme="@style/SettingTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UI.professor.ProfessorStatsActivity" />
+        </activity>
+        <!--
+             The API key for Google Maps-based APIs is defined as a string resource.
+             (See the file "res/values/google_maps_api.xml").
+             Note that the API key is linked to the encryption key used to sign the APK.
+             You need a different API key for each encryption key, including the release key that is used to
+             sign the APK for publishing.
+             You can define the keys for the debug and release targets in src/debug/ and src/release/. 
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity
+            android:name=".UI.map.MapActivity"
+            android:label="@string/title_activity_university_map"
+            android:theme="@style/SettingTheme">
 
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UI.ranking.RankingUniversityActivity" />
         </activity>
     </application>
 

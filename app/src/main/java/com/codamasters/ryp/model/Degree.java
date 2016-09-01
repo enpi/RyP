@@ -10,8 +10,9 @@ public class Degree {
     private Location location;
     private int numVotes;
     private double sumRating;
-    private double sumElo;
+    private double elo;
 
+    private String universityName;
     private String universityID;
 
     public Degree(){
@@ -24,7 +25,8 @@ public class Degree {
         this.location = new Location(13.1321, 35.31231);
         this.numVotes = 0;
         this.sumRating = 0;
-        this.sumElo = 0;
+        this.elo = 0;
+        this.universityName = "UGR";
         this.universityID = "-KPSOVH-JIRhmwUgErmP";
     }
 
@@ -48,10 +50,6 @@ public class Degree {
         return sumRating;
     }
 
-    public double getSumElo() {
-        return sumElo;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -72,16 +70,28 @@ public class Degree {
         this.sumRating = sumRating;
     }
 
-    public void setSumElo(double sumElo) {
-        this.sumElo = sumElo;
-    }
-
     public String getUniversityID() {
         return universityID;
     }
 
     public void setUniversityID(String universityID) {
         this.universityID = universityID;
+    }
+
+    public String getUniversityName() {
+        return universityName;
+    }
+
+    public void setUniversityName(String universityName) {
+        this.universityName = universityName;
+    }
+
+    public double getElo() {
+        return elo;
+    }
+
+    public void setElo(double elo) {
+        this.elo = elo;
     }
 }
 

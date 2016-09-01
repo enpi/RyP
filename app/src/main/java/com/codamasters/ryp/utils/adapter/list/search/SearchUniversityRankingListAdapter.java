@@ -1,8 +1,10 @@
 package com.codamasters.ryp.utils.adapter.list.search;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -35,7 +37,7 @@ public class SearchUniversityRankingListAdapter extends CustomListAdapter<Univer
     public View getView(int i, View view, ViewGroup viewGroup) {
 
         final University university = mModels.get(i);
-        //final String key = mKeys.get(i);
+        final String key = mKeys.get(i);
 
         if (view==null) {
             view = mInflater.inflate(R.layout.ranking_list_row, viewGroup, false);
@@ -48,7 +50,13 @@ public class SearchUniversityRankingListAdapter extends CustomListAdapter<Univer
         textView.setText(university.getName());
 
         textView = (TextView) view.findViewById(R.id.num_votes);
-        textView.setText(String.valueOf(university.getNumVotes()));
+        double skillRating = 0;
+
+        if(university.getNumVotes() != 0){
+            skillRating = university.getSumRating() / university.getNumVotes();
+        }
+
+        textView.setText(String.format("%.1f", skillRating) + " (" + university.getNumVotes() + ")");
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,8 +66,10 @@ public class SearchUniversityRankingListAdapter extends CustomListAdapter<Univer
                 Gson gson = new Gson();
                 String json = gson.toJson(university);
                 intent.putExtra("university", json);
-                //intent.putExtra("university_key", key);
-                context.startActivity(intent);
+                intent.putExtra("university_key", key);
+
+                Bundle bndlanimation = ActivityOptions.makeCustomAnimation(context, R.transition.animation_in_1,R.transition.animation_in_2).toBundle();
+                context.startActivity(intent, bndlanimation);
             }
         });
 

@@ -10,10 +10,11 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.codamasters.ryp.R;
-import com.codamasters.ryp.utils.adapter.list.primary.DegreeRankingListAdapter;
 import com.codamasters.ryp.utils.adapter.list.FirebaseListAdapter;
+import com.codamasters.ryp.utils.adapter.list.primary.DegreeRankingListAdapter;
 import com.codamasters.ryp.utils.adapter.list.primary.ProfessorRankingListAdapter;
 import com.codamasters.ryp.utils.adapter.list.primary.UniversityRankingListAdapter;
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -33,6 +34,7 @@ public class RankingListFragment  extends Fragment {
 
     private FirebaseListAdapter listAdapter;
     private DatabaseReference firebaseRef;
+    private SpinKitView spinKitView;
 
     public RankingListFragment() {
     }
@@ -66,16 +68,20 @@ public class RankingListFragment  extends Fragment {
         firebaseRef = FirebaseDatabase.getInstance().getReference().child(getArguments().getString(ARG_SECTION_REFERENCE));
         Query query;
 
+        spinKitView = (SpinKitView) rootView.findViewById(R.id.spinKit);
+        spinKitView.setVisibility(spinKitView.VISIBLE);
+
         switch (getArguments().getString(ARG_SECTION_REFERENCE)){
             case "university":
-                listAdapter = new UniversityRankingListAdapter(getActivity(), firebaseRef.orderByChild("sumElo").limitToFirst(10), getActivity(), R.layout.ranking_list_row);
+                listAdapter = new UniversityRankingListAdapter(getActivity(), firebaseRef.orderByChild("elo").limitToFirst(10), getActivity(), R.layout.ranking_list_row, getActivity().getSupportFragmentManager());
                 break;
             case "degree":
-                listAdapter = new DegreeRankingListAdapter(getActivity(), firebaseRef.orderByChild("sumElo").limitToFirst(10), getActivity(), R.layout.ranking_list_row);
+                listAdapter = new DegreeRankingListAdapter(getActivity(), firebaseRef.orderByChild("elo").limitToFirst(10), getActivity(), R.layout.ranking_list_row);
                 break;
             case "professor":
-                listAdapter = new ProfessorRankingListAdapter(getActivity(), firebaseRef.orderByChild("elo").limitToFirst(10), getActivity(), R.layout.ranking_list_row);
+                listAdapter = new ProfessorRankingListAdapter(getActivity(), firebaseRef.orderByChild("elo").limitToLast(10), getActivity(), R.layout.ranking_list_row);
                 break;
+            /*
             case "university_degree":
                 query = firebaseRef.child(getArguments().getString(ARG_SECTION_KEY)).orderByChild("sumElo").limitToFirst(10);
                 listAdapter = new DegreeRankingListAdapter(getActivity(), query, getActivity(), R.layout.ranking_list_row);
@@ -88,6 +94,7 @@ public class RankingListFragment  extends Fragment {
                 query = firebaseRef.child(getArguments().getString(ARG_SECTION_KEY)).orderByChild("elo").limitToFirst(10);
                 listAdapter = new ProfessorRankingListAdapter(getActivity(), query, getActivity(), R.layout.ranking_list_row);
                 break;
+                */
         }
 
         listView.setAdapter(listAdapter);
@@ -95,6 +102,7 @@ public class RankingListFragment  extends Fragment {
             @Override
             public void onChanged() {
                 super.onChanged();
+                spinKitView.setVisibility(SpinKitView.GONE);
                 listView.setSelection(listAdapter.getCount() - 1);
             }
         });

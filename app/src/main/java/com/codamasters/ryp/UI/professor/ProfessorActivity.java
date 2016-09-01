@@ -1,12 +1,13 @@
 package com.codamasters.ryp.UI.professor;
 
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,11 +19,14 @@ import android.widget.Toast;
 import com.codamasters.ryp.R;
 import com.codamasters.ryp.model.Professor;
 import com.codamasters.ryp.model.Rating;
+import com.codamasters.ryp.utils.other.EloCalculator;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -46,11 +50,13 @@ public class ProfessorActivity extends AppCompatActivity {
 
     private Professor professor;
     private String professor_key;
-    private String user_key;
+    private String user_id;
     private ArrayList<String> degree_keys;
     private String university_key;
 
     private DatabaseReference firebaseRef;
+    private boolean update=false;
+    private Rating lastRating;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +64,22 @@ public class ProfessorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_teacher);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
         mContext = this;
 
+        loadUser();
+        initView();
+
+        // SEND BUTTON
+        // TODO : loadProfessor error after coming back from Comment Activity
+        loadProfessor();
+        //initProfessor();
+        initListeners();
+
+        Log.d("PROFESSOR KEY", professor_key);
+
+    }
+
+    private void initView(){
         tvName = (TextView) findViewById(R.id.tv_teacher_name);
         tvTotalRating = (TextView) findViewById(R.id.tv_teacher_total_rating);
         tvSkill1 = (TextView) findViewById(R.id.tv_aptitude_1);
@@ -99,36 +118,13 @@ public class ProfessorActivity extends AppCompatActivity {
         tvTotalSkillRating4.setTextColor(Color.parseColor("#FFFFFF"));
         tvTotalSkillRating5.setTextColor(Color.parseColor("#FFFFFF"));
 
-        // SEND BUTTON
-        // TODO : loadProfessor error after coming back from Comment Activity
-        loadProfessor();
-        initTeacher();
-        initListeners();
-
         icon_teacher = (ImageView) findViewById(R.id.icon_teacher);
 
-        icon_teacher.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ProfessorActivity.this, ProfessorWebViewActivity.class);
-                intent.putExtra("web_url", professor.getWebUrl());
-                startActivity(intent);
-            }
-        });
-
-        tvName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ProfessorActivity.this, ProfessorWebViewActivity.class);
-                intent.putExtra("web_url", professor.getWebUrl());
-                startActivity(intent);
-            }
-        });
     }
 
     private void loadUser(){
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
-        user_key = prefs.getString("user_key", null);
+        user_id = prefs.getString("user_id", null);
     }
 
     private void loadProfessor(){
@@ -139,17 +135,76 @@ public class ProfessorActivity extends AppCompatActivity {
         professor_key = getIntent().getExtras().getString("professor_key", null);
         university_key = professor.getUniversityID();
         degree_keys = (ArrayList<String>) professor.getDegreeIDs();
+
+        initProfessor();
+
+        // Check if prof got already voted from user
+
+        firebaseRef = FirebaseDatabase.getInstance().getReference().child("user_rating").child(user_id).child(professor_key);
+        firebaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    Log.d("CHILDREN", "YES");
+                    update = true;
+                    lastRating = dataSnapshot.getValue(Rating.class);
+                    loadRating(lastRating);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        // Watch profs values to update the UI (happens after votes get updated)
+
+        firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor").child(professor_key);
+        firebaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("DATA", dataSnapshot.toString());
+                professor = dataSnapshot.getValue(Professor.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
-    public void initTeacher(){
+    public void loadRating(Rating rating){
+            rbSkill1.setRating(rating.getSkillRating1());
+            rbSkill2.setRating(rating.getSkillRating2());
+            rbSkill3.setRating(rating.getSkillRating3());
+            rbSkill4.setRating(rating.getSkillRating4());
+            rbSkill5.setRating(rating.getSkillRating5());
+    }
+
+    public void initProfessor(){
+
+        Log.d("Update", "Updating PROF");
 
         int total = professor.getTotalSkillRating1() + professor.getTotalSkillRating2() + professor.getTotalSkillRating3() + professor.getTotalSkillRating4() + professor.getTotalSkillRating5();
-        float rating = (float) (total / 5 ) / professor.getNumVotes();
-        float aptitude_1 = (float) professor.getTotalSkillRating1() / professor.getNumVotes();
-        float aptitude_2 = (float) professor.getTotalSkillRating2() / professor.getNumVotes();
-        float aptitude_3 = (float) professor.getTotalSkillRating3() / professor.getNumVotes();
-        float aptitude_4 = (float) professor.getTotalSkillRating4() / professor.getNumVotes();
-        float aptitude_5 = (float) professor.getTotalSkillRating5() / professor.getNumVotes();
+        float rating = 0;
+        float aptitude_1 = 0;
+        float aptitude_2 = 0;
+        float aptitude_3 = 0;
+        float aptitude_4 = 0;
+        float aptitude_5 = 0;
+
+        if(professor.getNumVotes()!=0) {
+            rating = (float) total / (5 * professor.getNumVotes());
+
+            aptitude_1 = (float) professor.getTotalSkillRating1() / professor.getNumVotes();
+            aptitude_2 = (float) professor.getTotalSkillRating2() / professor.getNumVotes();
+            aptitude_3 = (float) professor.getTotalSkillRating3() / professor.getNumVotes();
+            aptitude_4 = (float) professor.getTotalSkillRating4() / professor.getNumVotes();
+            aptitude_5 = (float) professor.getTotalSkillRating5() / professor.getNumVotes();
+        }
 
 
         tvName.setText(professor.getName());
@@ -167,9 +222,49 @@ public class ProfessorActivity extends AppCompatActivity {
 
         // TODO : ADD RATING UPDATE
         long skillRating[] = {(int) rbSkill1.getRating(),(int) rbSkill2.getRating(), (int) rbSkill3.getRating(), (int) rbSkill4.getRating(), (int) rbSkill5.getRating()};
-        long skillRatingValue = ( skillRating[0] + skillRating[1] + skillRating[2] + skillRating[3] + skillRating[4] ) / 5;
+        float skillRatingValue = (float) ( skillRating[0] + skillRating[1] + skillRating[2] + skillRating[3] + skillRating[4] ) / 5;
+        Log.d("SKILL RATING", String.valueOf(skillRatingValue));
 
         Rating rating = new Rating(skillRating[0], skillRating[1], skillRating[2], skillRating[3], skillRating[4], System.currentTimeMillis());
+
+        // must be sync, more users are accessing the same db location
+
+        // The profesor is updated
+        // The degree is updated
+        // The university is updated
+
+        // If its an update (already voted prof) we have to do it correctly
+
+        EloCalculator eloCalculator = new EloCalculator();
+        double elo = eloCalculator.getNewElo(- professor.getElo(), skillRatingValue);
+
+        Log.d("NEW ELO", String.valueOf(elo));
+
+
+        if(lastRating!=null){
+            skillRating[0] = skillRating[0] - lastRating.getSkillRating1();
+            skillRating[1] = skillRating[1] - lastRating.getSkillRating2();
+            skillRating[2] = skillRating[2] - lastRating.getSkillRating3();
+            skillRating[3] = skillRating[3] - lastRating.getSkillRating4();
+            skillRating[4] = skillRating[4] - lastRating.getSkillRating5();
+
+            skillRatingValue = ( skillRating[0] + skillRating[1] + skillRating[2] + skillRating[3] + skillRating[4] ) / 5;
+            double lastSkillRatingValue = (lastRating.getSkillRating1() + lastRating.getSkillRating2() + lastRating.getSkillRating3() + lastRating.getSkillRating4() + lastRating.getSkillRating5()) / 5;
+            elo -= eloCalculator.getNewElo(- professor.getElo(), lastSkillRatingValue);
+        }
+
+        Log.d("UPDATE ELO", String.valueOf(elo));
+        Log.d("UPDATE SKILL RATING", String.valueOf(skillRatingValue));
+
+
+        lastRating = rating;
+
+
+        updateProfessor(skillRating, elo);
+        for(String degree : degree_keys) {
+            updateDegree(degree, skillRatingValue, elo);
+        }
+        updateUniversity(skillRatingValue, elo);
 
         // it's uniquer per user, sync isn't necessary
 
@@ -179,35 +274,30 @@ public class ProfessorActivity extends AppCompatActivity {
         // Every db location is denormalized for faster read operations
         // but write operations are more complex
 
-        user_key = "captain";
-
-        firebaseRef = FirebaseDatabase.getInstance().getReference().child("user_rating").child(user_key).child(professor_key);
+        firebaseRef = FirebaseDatabase.getInstance().getReference().child("user_rating").child(user_id).child(professor_key);
         firebaseRef.setValue(rating);
 
-        firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor_rating").child(professor_key).child(user_key);
+        firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor_rating").child(professor_key).child(user_id);
         firebaseRef.setValue(rating);
 
-        // must be sync, more users are accessing the same db location
+        // Generate lots of random Ratings
+        /*
+        for(int i=0; i<500; i++) {
+            firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor_rating").child(professor_key).child(user_id+i);
+            Random ran = new Random();
+            int x1 = ran.nextInt(5) + 1; // Randoms entre 1-5
+            int x2 = ran.nextInt(5) + 1; // Randoms entre 1-5
+            int x3 = ran.nextInt(5) + 1; // Randoms entre 1-5
+            int x4 = ran.nextInt(5) + 1; // Randoms entre 1-5
+            int x5 = ran.nextInt(5) + 1; // Randoms entre 1-5
 
-        // The profesor is updated
-        // The professor in a specific university is updated
-        // The degree is updated
-        // The degree in the specific univeristy is updated
-        // The profesor in a specific degree and university is updated
-        // The university is updated
-
-        updateProfessor(skillRating);
-        updateProfessorUniversity(skillRating);
-        for(String degree : degree_keys) {
-            updateDegree(degree, skillRatingValue);
-            updateDegreeUniversity(degree, skillRatingValue);
-            updateProfessorUniversityDegree(degree, skillRating);
+            Rating rating1 = new Rating(x1, x2, x3, x4,x5, System.currentTimeMillis());
+            firebaseRef.setValue(rating1);
         }
-        updateUniversity(skillRatingValue);
+        */
     }
 
-
-    private void updateProfessor(final long skillRating[]){
+    private void updateProfessor(final long skillRating[], final double elo){
         // runTransactions for sync update
         for(int i=0; i<5; i++) {
             int j = i+1;
@@ -231,125 +321,69 @@ public class ProfessorActivity extends AppCompatActivity {
             });
         }
 
+        firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor").child(professor_key).child("elo");
+
+        firebaseRef.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                mutableData.setValue(mutableData.getValue(Double.class) - elo);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                if (databaseError != null) {
+                    System.out.println("ERROR UPDATING ELO.");
+                }
+            }
+        });
+
 
         firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor").child(professor_key).child("numVotes");
 
+        Log.d("VOTE", "ADDVOTE");
+
         firebaseRef.runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
-                mutableData.setValue((Long) mutableData.getValue() + 1);
+                if(!update)
+                    mutableData.setValue((Long) mutableData.getValue() + 1);
                 return Transaction.success(mutableData);
             }
 
             @Override
             public void onComplete(DatabaseError databaseError, boolean b, com.google.firebase.database.DataSnapshot dataSnapshot) {
                 if (databaseError != null) {
-                    System.out.println("Firebase counter decrement failed.");
+                    System.out.println("Firebase counter increment failed.");
                     Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+                }else{
+                    // UI Update
+                    // After last update, prof gets updated with the value listener and we can update the UI
+                    initProfessor();
 
-    }
+                    // Show messages
 
-    private void updateProfessorUniversity(final long skillRating[]){
-        // runTransactions for sync update
-        for(int i=0; i<5; i++) {
-            int j = i+1;
-            firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor_university").child(university_key).child(professor_key).child("totalSkillRating"+j);
-
-            final int finalI = i;
-            firebaseRef.runTransaction(new Transaction.Handler() {
-                @Override
-                public Transaction.Result doTransaction(MutableData mutableData) {
-                    mutableData.setValue((Long) mutableData.getValue() + skillRating[finalI]);
-                    return Transaction.success(mutableData);
-                }
-
-                @Override
-                public void onComplete(DatabaseError databaseError, boolean b, com.google.firebase.database.DataSnapshot dataSnapshot) {
-                    if (databaseError != null) {
-                        System.out.println("Firebase counter decrement failed.");
-                        Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                    if(update){
+                        Toast.makeText(getApplicationContext(), "Puntuación actualizada.", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(getApplicationContext(), "Puntuación enviada.", Toast.LENGTH_SHORT).show();
+                        update=true;
                     }
                 }
-            });
-        }
-
-
-        firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor_university").child(university_key).child(professor_key).child("numVotes");
-
-        firebaseRef.runTransaction(new Transaction.Handler() {
-            @Override
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                mutableData.setValue((Long) mutableData.getValue() + 1);
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(DatabaseError databaseError, boolean b, com.google.firebase.database.DataSnapshot dataSnapshot) {
-                if (databaseError != null) {
-                    System.out.println("Firebase counter decrement failed.");
-                    Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                }
             }
         });
 
     }
 
-    private void updateProfessorUniversityDegree(String degree, final long skillRating[]){
-        // runTransactions for sync update
-        for(int i=0; i<5; i++) {
-            int j = i+1;
-            firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor_university").child(university_key+"_"+degree).child(professor_key).child("totalSkillRating"+j);
 
-            final int finalI = i;
-            firebaseRef.runTransaction(new Transaction.Handler() {
-                @Override
-                public Transaction.Result doTransaction(MutableData mutableData) {
-                    mutableData.setValue((Long) mutableData.getValue() + skillRating[finalI]);
-                    return Transaction.success(mutableData);
-                }
-
-                @Override
-                public void onComplete(DatabaseError databaseError, boolean b, com.google.firebase.database.DataSnapshot dataSnapshot) {
-                    if (databaseError != null) {
-                        System.out.println("Firebase counter decrement failed.");
-                        Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
-
-
-        firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor_university").child(university_key+"_"+degree).child(professor_key).child("numVotes");
-
-        firebaseRef.runTransaction(new Transaction.Handler() {
-            @Override
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                mutableData.setValue((Long) mutableData.getValue() + 1);
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(DatabaseError databaseError, boolean b, com.google.firebase.database.DataSnapshot dataSnapshot) {
-                if (databaseError != null) {
-                    System.out.println("Firebase counter decrement failed.");
-                    Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-    }
-
-    private void updateDegree(String degree, final long skill){
+    private void updateDegree(String degree, final float skill, final double elo){
 
         firebaseRef = FirebaseDatabase.getInstance().getReference().child("degree").child(degree).child("sumRating");
 
         firebaseRef.runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
-                mutableData.setValue((Long) mutableData.getValue() + skill);
+                mutableData.setValue(mutableData.getValue(Float.class) + skill);
                 return Transaction.success(mutableData);
             }
 
@@ -362,13 +396,29 @@ public class ProfessorActivity extends AppCompatActivity {
             }
         });
 
-
-        firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor").child(professor_key).child("numVotes");
+        firebaseRef = FirebaseDatabase.getInstance().getReference().child("degree").child(degree).child("sumElo");
 
         firebaseRef.runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
-                mutableData.setValue((Long) mutableData.getValue() + 1);
+                mutableData.setValue(mutableData.getValue(Double.class) - elo);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
+            }
+        });
+
+
+        firebaseRef = FirebaseDatabase.getInstance().getReference().child("degree").child(degree).child("numVotes");
+
+        firebaseRef.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                if(!update)
+                    mutableData.setValue((Long) mutableData.getValue() + 1);
                 return Transaction.success(mutableData);
             }
 
@@ -383,55 +433,14 @@ public class ProfessorActivity extends AppCompatActivity {
 
     }
 
-    private void updateDegreeUniversity(String degree, final long skill){
-
-        firebaseRef = FirebaseDatabase.getInstance().getReference().child("degree_university").child(university_key).child(degree).child("sumRating");
-
-        firebaseRef.runTransaction(new Transaction.Handler() {
-            @Override
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                mutableData.setValue((Long) mutableData.getValue() + skill);
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(DatabaseError databaseError, boolean b, com.google.firebase.database.DataSnapshot dataSnapshot) {
-                if (databaseError != null) {
-                    System.out.println("Firebase counter decrement failed.");
-                    Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-
-        firebaseRef = FirebaseDatabase.getInstance().getReference().child("degree_university").child(university_key).child(degree).child("numVotes");
-
-        firebaseRef.runTransaction(new Transaction.Handler() {
-            @Override
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                mutableData.setValue((Long) mutableData.getValue() + 1);
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(DatabaseError databaseError, boolean b, com.google.firebase.database.DataSnapshot dataSnapshot) {
-                if (databaseError != null) {
-                    System.out.println("Firebase counter decrement failed.");
-                    Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-    }
-
-    private void updateUniversity(final long skill){
+    private void updateUniversity(final float skill, final double elo){
 
         firebaseRef = FirebaseDatabase.getInstance().getReference().child("university").child(university_key).child("sumRating");
 
         firebaseRef.runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
-                mutableData.setValue((Long) mutableData.getValue() + skill);
+                mutableData.setValue(mutableData.getValue(Float.class) + skill);
                 return Transaction.success(mutableData);
             }
 
@@ -441,6 +450,21 @@ public class ProfessorActivity extends AppCompatActivity {
                     System.out.println("Firebase counter decrement failed.");
                     Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        firebaseRef = FirebaseDatabase.getInstance().getReference().child("university").child(university_key).child("sumElo");
+
+        firebaseRef.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                mutableData.setValue(mutableData.getValue(Double.class) - elo);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
             }
         });
 
@@ -450,7 +474,8 @@ public class ProfessorActivity extends AppCompatActivity {
         firebaseRef.runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
-                mutableData.setValue((Long) mutableData.getValue() + 1);
+                if(!update)
+                    mutableData.setValue((Long) mutableData.getValue() + 1);
                 return Transaction.success(mutableData);
             }
 
@@ -511,6 +536,28 @@ public class ProfessorActivity extends AppCompatActivity {
                         .show();
             }
         });
+
+        icon_teacher.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ProfessorActivity.this, ProfessorWebViewActivity.class);
+                intent.putExtra("web_url", professor.getWebUrl());
+
+                Bundle bndlanimation = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.transition.animation_in_1,R.transition.animation_in_2).toBundle();
+                startActivity(intent, bndlanimation);
+            }
+        });
+
+        tvName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ProfessorActivity.this, ProfessorWebViewActivity.class);
+                intent.putExtra("web_url", professor.getWebUrl());
+
+                Bundle bndlanimation = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.transition.animation_in_1,R.transition.animation_in_2).toBundle();
+                startActivity(intent, bndlanimation);
+            }
+        });
     }
 
     @Override
@@ -522,15 +569,26 @@ public class ProfessorActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        Bundle bndlanimation = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.transition.animation_in_1,R.transition.animation_in_2).toBundle();
+
         switch (item.getItemId()) {
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+                onBackPressed();
                 return true;
             case R.id.openChat:
-                Intent intent = new Intent(ProfessorActivity.this, ProfessorCommentActivity.class);
-                intent.putExtra("professor_key", professor_key);
-                intent.putExtra("professor_name", professor.getName());
-                startActivity(intent);
+                Intent intentComment = new Intent(ProfessorActivity.this, ProfessorCommentActivity.class);
+                intentComment.putExtra("professor_key", professor_key);
+                intentComment.putExtra("professor_name", professor.getName());
+
+                startActivity(intentComment, bndlanimation);
+                return true;
+            case R.id.openStats:
+                Intent intentStats = new Intent(ProfessorActivity.this, ProfessorStatsActivity.class);
+                intentStats.putExtra("professor_key", professor_key);
+                intentStats.putExtra("professor_name", professor.getName());
+
+                startActivity(intentStats, bndlanimation);
                 return true;
             case R.id.sendRating:
                 sendRating();
@@ -540,4 +598,9 @@ public class ProfessorActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.transition.animation_out_1, R.transition.animation_out_2);
+    }
 }

@@ -37,6 +37,7 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
     public List<String> mKeys;
     private ChildEventListener mListener;
 
+
     /**
      * @param mRef        The Firebase location to watch for data changes. Can also be a slice of a location, using some
      *                    combination of <code>limit()</code>, <code>startAt()</code>, and <code>endAt()</code>,
@@ -48,7 +49,6 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
     public FirebaseListAdapter(Query mRef, Class<T> mModelClass, int mLayout, Activity activity) {
 
         Log.d("Firebase", "NEW LIST ADAPTER");
-
 
         this.mRef = mRef;
         this.mModelClass = mModelClass;

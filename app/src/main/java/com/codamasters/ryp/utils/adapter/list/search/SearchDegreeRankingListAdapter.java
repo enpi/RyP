@@ -1,8 +1,10 @@
 package com.codamasters.ryp.utils.adapter.list.search;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -35,7 +37,7 @@ public class SearchDegreeRankingListAdapter extends CustomListAdapter<Degree> {
     public View getView(int i, View view, ViewGroup viewGroup) {
 
         final Degree degree = mModels.get(i);
-        //final String key = mKeys.get(i);
+        final String key = mKeys.get(i);
 
         if (view==null) {
             view = mInflater.inflate(R.layout.ranking_list_row, viewGroup, false);
@@ -45,10 +47,17 @@ public class SearchDegreeRankingListAdapter extends CustomListAdapter<Degree> {
         textView.setText(String.valueOf(i+1));
 
         textView = (TextView) view.findViewById(R.id.name);
-        textView.setText(degree.getName());
+        textView.setText(degree.getName() + " (" + degree.getUniversityName() + ")");
+        //textView.setText(degree.getName());
 
         textView = (TextView) view.findViewById(R.id.num_votes);
-        textView.setText(String.valueOf(degree.getNumVotes()));
+        double skillRating = 0;
+
+        if(degree.getNumVotes() != 0){
+            skillRating = degree.getSumRating() / degree.getNumVotes();
+        }
+
+        textView.setText(String.format("%.1f", skillRating) + "  (" + degree.getNumVotes() + ")");
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,8 +68,10 @@ public class SearchDegreeRankingListAdapter extends CustomListAdapter<Degree> {
                 String json = gson.toJson(degree);
                 intent.putExtra("degree", json);
 
-                //intent.putExtra("degree_key", key);
-                context.startActivity(intent);
+                intent.putExtra("degree_key", key);
+
+                Bundle bndlanimation = ActivityOptions.makeCustomAnimation(context, R.transition.animation_in_1,R.transition.animation_in_2).toBundle();
+                context.startActivity(intent, bndlanimation);
             }
         });
 

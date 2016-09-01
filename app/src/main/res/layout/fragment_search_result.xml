@@ -11,11 +11,22 @@
         android:id="@+id/ranking_lv"
         android:divider="@android:color/transparent"
         android:transcriptMode="alwaysScroll"
-        android:paddingTop="40dp"
         android:paddingBottom="8dp"
         android:clipToPadding="false"
         android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <com.github.ybq.android.spinkit.SpinKitView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/spinKit"
+        style="@style/SpinKitView.Large.Circle"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:visibility="gone"
+        android:layout_marginTop="100dp"
+        app:SpinKit_Color="@color/colorPrimary" />
 
 </RelativeLayout>

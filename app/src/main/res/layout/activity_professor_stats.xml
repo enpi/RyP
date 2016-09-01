@@ -3,60 +3,77 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:gravity="center"
+    android:background="@color/colorPrimaryDark"
     tools:context="com.codamasters.ryp.UI.professor.ProfessorStatsActivity">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/timeText"
+        android:textColor="@color/white"
+        android:textSize="18dp"
+        android:layout_marginTop="10dp"
         android:textAlignment="center"
-        android:text="HOLA"/>
+        android:text=""/>
 
-
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:orientation="vertical"
-        android:layout_height="200dp"
-        android:background="#FFFFFF"
-        android:layout_below="@id/timeText"
-        android:minHeight="2dp">
+        android:layout_height="match_parent"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/round_corners"
+        android:layout_marginTop="65dp"
+        android:visibility="visible">
 
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/chart1"
+        <LinearLayout
+            android:layout_alignParentBottom="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/seekBar1" />
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:id="@+id/chartsLayout"
+            android:visibility="gone"
+            android:minHeight="2dp">
 
-        <SeekBar
-            android:id="@+id/seekBar2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_margin="8dp"
-            android:layout_toLeftOf="@+id/tvYMax"
-            android:layout_marginRight="5dp"
-            android:max="200"
-            android:paddingBottom="12dp" />
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/pieChart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
 
-        <SeekBar
-            android:id="@+id/seekBar1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/seekBar2"
-            android:layout_margin="8dp"
-            android:layout_marginBottom="35dp"
-            android:layout_toLeftOf="@+id/tvXMax"
-            android:layout_marginRight="5dp"
-            android:max="500"
-            android:paddingBottom="12dp" />
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/lineChart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
 
-    </LinearLayout>
+        </LinearLayout>
+
+        <com.github.ybq.android.spinkit.SpinKitView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/spinKit"
+            style="@style/SpinKitView.Large.Circle"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            app:SpinKit_Color="@color/colorPrimary" />
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparentBlack"
+        android:visibility="gone"
+        android:id="@+id/dim"></FrameLayout>
 
 
 </RelativeLayout>

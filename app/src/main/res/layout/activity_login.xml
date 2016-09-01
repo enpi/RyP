@@ -55,8 +55,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:textSize="15dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginLeft="30dp" />
+            android:layout_marginRight="28dp"
+            android:layout_marginLeft="28dp" />
 
 
         </LinearLayout>

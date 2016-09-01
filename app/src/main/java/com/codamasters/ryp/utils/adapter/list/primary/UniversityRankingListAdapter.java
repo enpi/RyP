@@ -1,8 +1,11 @@
 package com.codamasters.ryp.utils.adapter.list.primary;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -25,10 +28,12 @@ public class UniversityRankingListAdapter extends FirebaseListAdapter<University
 
     private Context context;
     private int rank = 1;
+    private FragmentManager fragmentManager;
 
-    public UniversityRankingListAdapter(Context context, Query ref, Activity activity, int layout) {
+    public UniversityRankingListAdapter(Context context, Query ref, Activity activity, int layout, FragmentManager fragmentManager) {
         super(ref, University.class, layout, activity);
         this.context = context;
+        this.fragmentManager = fragmentManager;
     }
 
     @Override
@@ -60,6 +65,7 @@ public class UniversityRankingListAdapter extends FirebaseListAdapter<University
     protected void populateView(View view, final University university, final String key, int i) {
         // Map a Chat object to an entry in our listview
 
+
         TextView textView = (TextView) view.findViewById(R.id.rank);
         textView.setText(String.valueOf(i+1));
 
@@ -67,18 +73,46 @@ public class UniversityRankingListAdapter extends FirebaseListAdapter<University
         textView.setText(university.getName());
 
         textView = (TextView) view.findViewById(R.id.num_votes);
-        textView.setText(String.valueOf(university.getNumVotes()));
+        double skillRating = 0;
+
+        if(university.getNumVotes() != 0){
+            skillRating = university.getSumRating() / university.getNumVotes();
+        }
+
+        textView.setText(String.format("%.1f", skillRating) + " (" + university.getNumVotes() + ")");
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                /*
+                Fragment fragment = new RankingUniversityFragment();
+
+                Bundle bundle = new Bundle();
+
+                Gson gson = new Gson();
+                String json = gson.toJson(university);
+                bundle.putString("university", json);
+                bundle.putString("university_key", key);
+
+                fragment.setArguments(bundle);
+
+                fragmentManager.beginTransaction()
+                        .add(R.id.main_content, fragment)
+                        .addToBackStack(null)
+                        .commit();
+                */
+
                 Intent intent = new Intent(context, RankingUniversityActivity.class);
 
                 Gson gson = new Gson();
                 String json = gson.toJson(university);
                 intent.putExtra("university", json);
                 intent.putExtra("university_key", key);
-                context.startActivity(intent);
+
+                Bundle bndlanimation = ActivityOptions.makeCustomAnimation(context, R.transition.animation_in_1,R.transition.animation_in_2).toBundle();
+                context.startActivity(intent, bndlanimation);
+
             }
         });
 

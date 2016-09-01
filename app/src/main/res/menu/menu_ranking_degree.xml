@@ -1,0 +1,20 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".UI.ranking.RankingPrimaryActivity">
+
+    <item
+        android:id="@+id/openChat"
+        android:icon="@android:drawable/sym_action_chat"
+        android:title="Send"
+        app:showAsAction="always"
+        android:orderInCategory="0"/>
+
+    <item
+        android:id="@+id/openMap"
+        android:icon="@drawable/gmaps"
+        android:title="Map"
+        app:showAsAction="always"
+        android:orderInCategory="0"/>
+
+</menu>

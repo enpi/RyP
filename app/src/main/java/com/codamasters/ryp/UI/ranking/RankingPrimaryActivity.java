@@ -1,13 +1,14 @@
 package com.codamasters.ryp.UI.ranking;
 
+import android.app.ActivityOptions;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -15,9 +16,11 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.codamasters.ryp.R;
-import com.codamasters.ryp.UI.settings.SettingsActivity;
+import com.codamasters.ryp.UI.login.LoginActivity;
+import com.codamasters.ryp.UI.search.SearchActivity;
 import com.codamasters.ryp.utils.adapter.pager.PrimarySectionsPagerAdapter;
-import com.google.firebase.database.DatabaseReference;
+import com.facebook.login.LoginManager;
+import com.google.firebase.auth.FirebaseAuth;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -28,6 +31,8 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.twitter.sdk.android.Twitter;
+import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 public class RankingPrimaryActivity extends AppCompatActivity {
 
@@ -53,10 +58,9 @@ public class RankingPrimaryActivity extends AppCompatActivity {
     private ViewPager mViewPager;
 
     private TabLayout tl;
-    private TabLayout.Tab[] mTabs;
     private Toolbar toolbar;
 
-    private DatabaseReference firebaseRef;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +70,8 @@ public class RankingPrimaryActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mAuth = FirebaseAuth.getInstance();
 
-        saveUser();
         initDrawer();
 
         // Create teacher and send info
@@ -146,7 +150,11 @@ public class RankingPrimaryActivity extends AppCompatActivity {
 
         */
 
+        setUpViewPager();
 
+    }
+
+    private void setUpViewPager(){
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mPrimarySectionsPagerAdapter = new PrimarySectionsPagerAdapter(getSupportFragmentManager());
@@ -156,25 +164,17 @@ public class RankingPrimaryActivity extends AppCompatActivity {
         mViewPager.setAdapter(mPrimarySectionsPagerAdapter);
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         tl = (TabLayout) findViewById(R.id.tl_activity_main);
         tl.setupWithViewPager(mViewPager);
-
-
+        tl.setTabTextColors(-1,-256);
     }
 
-    public void saveUser(){
-        SharedPreferences prefs = getSharedPreferences("RYP", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("user_key", "captain");
+    private void saveUser(){
+        SharedPreferences.Editor editor = getSharedPreferences(PREF_TAG, MODE_PRIVATE).edit();
+        editor.putString("user_name", user_name);
+        editor.putString("user_id", user_id);
+        editor.putString("user_email", user_email);
+        //editor.putString("user_password", user_password);
         editor.commit();
     }
 
@@ -194,8 +194,9 @@ public class RankingPrimaryActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(RankingPrimaryActivity.this, SettingsActivity.class));
+        if (id == R.id.search) {
+            Bundle bndlanimation = ActivityOptions.makeCustomAnimation(getApplicationContext(), R.transition.animation_in_1,R.transition.animation_in_2).toBundle();
+            startActivity(new Intent(RankingPrimaryActivity.this, SearchActivity.class), bndlanimation);
             return true;
         }
 
@@ -206,37 +207,93 @@ public class RankingPrimaryActivity extends AppCompatActivity {
     private void initDrawer(){
         AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
-                .withHeaderBackground(R.drawable.header)
+                .withHeaderBackground(R.drawable.header3)
                 .addProfiles(
-                        new ProfileDrawerItem().withName("Captain").withEmail("jacks@sparrow.com").withIcon(getResources().getDrawable(R.drawable.material_drawer_badge))
+                        new ProfileDrawerItem().withName(mAuth.getCurrentUser().getDisplayName()).withEmail(mAuth.getCurrentUser().getEmail()).withIcon(mAuth.getCurrentUser().getPhotoUrl())
                 )
+                .withDividerBelowHeader(true)
                 .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
                     @Override
                     public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
+                        showLogoutDialog();
                         return false;
                     }
                 })
                 .build();
 
-        new DrawerBuilder()
+        final Drawer drawer = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
                 .withAccountHeader(headerResult)
                 .withTranslucentStatusBar(false)
                 .withActionBarDrawerToggle(true)
+                .withActionBarDrawerToggleAnimated(true)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withIdentifier(1).withName("primary"),
+                        new PrimaryDrawerItem().withName("Ranking Principal").withIcon(R.drawable.app_icon_small_black),
                         new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("secondary")
-                )
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        new SecondaryDrawerItem().withName("About").withIcon(R.drawable.about),
+                        new SecondaryDrawerItem().withName("Logout").withIcon(R.drawable.logout)
+                ).build();
 
-                        return true;
-                    }
-                })
-                .build();
+        drawer.setOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+            @Override
+            public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                switch (position){
+                    case 1:
+                        break;
+                    case 3: showAboutDialog();
+                        break;
+                    case 4: showLogoutDialog();
+                        break;
+                }
+
+                drawer.closeDrawer();
+                return true;
+            }
+        });
+    }
+
+    private void showAboutDialog(){
+        new LovelyStandardDialog(this)
+                .setTopColorRes(R.color.indigo)
+                .setButtonsColorRes(R.color.darkDeepOrange)
+                .setIcon(R.drawable.app_icon_small)
+                .setTitle("About")
+                .setMessage("App designed by CodaMasters.").show();
+    }
+
+    private void showLogoutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Logout");
+        builder.setMessage("Do you want to logout?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                logout();
+                finish();
+                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                //TODO
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void logout(){
+        mAuth.signOut();
+        LoginManager.getInstance().logOut();
+        Twitter.logOut();
+
+        user_name = null;
+        user_email = null;
+        user_id = null;
+        user_password = null;
+        saveUser();
     }
 
     private boolean getUser(){

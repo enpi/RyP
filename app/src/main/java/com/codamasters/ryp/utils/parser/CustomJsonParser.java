@@ -3,16 +3,21 @@ package com.codamasters.ryp.utils.parser;
 import android.util.Log;
 
 import com.codamasters.ryp.model.Degree;
+import com.codamasters.ryp.model.Location;
 import com.codamasters.ryp.model.Professor;
 import com.codamasters.ryp.model.University;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by Juan on 20/08/2016.
@@ -24,12 +29,21 @@ public class CustomJsonParser {
     private ArrayList<Degree> degrees;
     private ArrayList<University> universities;
 
+    private ArrayList<String> professorsKeys;
+    private ArrayList<String> degreesKeys;
+    private ArrayList<String> universitiesKeys;
+
     public CustomJsonParser(JSONObject jsonObject){
         this.jsonObject = jsonObject;
 
         universities = new ArrayList<>();
         degrees = new ArrayList<>();
         professors = new ArrayList<>();
+
+        professorsKeys = new ArrayList<>();
+        degreesKeys = new ArrayList<>();
+        universitiesKeys = new ArrayList<>();
+
     }
 
     public void parse() throws JSONException {
@@ -47,12 +61,15 @@ public class CustomJsonParser {
 
             switch (type){
                 case "university":
+                    universitiesKeys.add(object.getString("_id"));
                     addUniversity(content);
                     break;
                 case "degree":
+                    degreesKeys.add(object.getString("_id"));
                     addDegree(content);
                     break;
                 case "professor":
+                    professorsKeys.add(object.getString("_id"));
                     addProfessor(content);
                     break;
             }
@@ -64,7 +81,7 @@ public class CustomJsonParser {
     private void addUniversity(JSONObject object) throws JSONException {
         University university = new University();
         university.setName(object.getString("name"));
-        university.setSumElo(object.getDouble("sumElo"));
+        university.setElo(object.getDouble("elo"));
         university.setSumRating(object.getDouble("sumRating"));
         university.setNumVotes(object.getInt("numVotes"));
 
@@ -74,11 +91,21 @@ public class CustomJsonParser {
     }
 
     private void addDegree(JSONObject object) throws JSONException {
+
+
         Degree degree = new Degree();
         degree.setName(object.getString("name"));
-        degree.setSumElo(object.getDouble("sumElo"));
+        degree.setElo(object.getDouble("elo"));
         degree.setSumRating(object.getDouble("sumRating"));
         degree.setNumVotes(object.getInt("numVotes"));
+        degree.setFaculty(object.getString("faculty"));
+        degree.setUniversityName(object.getString("universityName"));
+        degree.setUniversityID(object.getString("universityID"));
+
+        Type listType = new TypeToken<Location>() {}.getType();
+        Location location = new Gson().fromJson(object.getString("location"), listType);
+
+        degree.setLocation(location);
 
         degrees.add(degree);
 
@@ -96,6 +123,13 @@ public class CustomJsonParser {
         professor.setTotalSkillRating4(object.getInt("totalSkillRating4"));
         professor.setTotalSkillRating5(object.getInt("totalSkillRating5"));
         professor.setNumVotes(object.getInt("numVotes"));
+        professor.setWebUrl(object.getString("webUrl"));
+        professor.setUniversityID(object.getString("universityID"));
+
+        Type listType = new TypeToken<List<String>>() {}.getType();
+        List<String> degreeIds = new Gson().fromJson(object.getString("degreeIDs"), listType);
+
+        professor.setDegreeIDs(degreeIds);
 
         professors.add(professor);
 
@@ -108,14 +142,14 @@ public class CustomJsonParser {
         Collections.sort(universities, new Comparator<University>() {
             @Override
             public int compare(University lhs, University rhs) {
-                return (int) (lhs.getSumElo() - rhs.getSumElo());
+                return (int) (lhs.getElo() - rhs.getElo());
             }
         });
 
         Collections.sort(degrees, new Comparator<Degree>() {
             @Override
             public int compare(Degree lhs, Degree rhs) {
-                return (int) (lhs.getSumElo() - rhs.getSumElo());
+                return (int) (lhs.getElo() - rhs.getElo());
             }
         });
 
@@ -137,5 +171,17 @@ public class CustomJsonParser {
 
     public ArrayList<University> getUniversities() {
         return universities;
+    }
+
+    public ArrayList<String> getProfessorsKeys() {
+        return professorsKeys;
+    }
+
+    public ArrayList<String> getDegreesKeys() {
+        return degreesKeys;
+    }
+
+    public ArrayList<String> getUniversitiesKeys() {
+        return universitiesKeys;
     }
 }

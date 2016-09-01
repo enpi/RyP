@@ -5,6 +5,8 @@ import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -29,7 +31,7 @@ public class ProfessorCommentActivity extends AppCompatActivity {
     private CommentListAdapter mCommentListAdapter;
     private String professorKey;
     private String user_name;
-    private String user_key;
+    private String user_id;
     private String title;
 
     private DatabaseReference firebaseRef;
@@ -39,9 +41,7 @@ public class ProfessorCommentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Make sure we have a mUsername
         loadUser();
@@ -52,7 +52,7 @@ public class ProfessorCommentActivity extends AppCompatActivity {
 
 
         // Setup our Firebase mFirebaseRef
-        firebaseRef = FirebaseDatabase.getInstance().getReference().child("chat").child(professorKey);
+        firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor_comments").child(professorKey);
 
 
         // Setup our input methods. Enter key on the keyboard or pushing the send button
@@ -82,7 +82,7 @@ public class ProfessorCommentActivity extends AppCompatActivity {
         // Setup our view and list adapter. Ensure it scrolls to the bottom as data changes
         final ListView listView = (ListView) findViewById(R.id.chat_lv);
         // Tell our list adapter that we only want 50 messages at a time
-        mCommentListAdapter = new CommentListAdapter(this, firebaseRef.limitToFirst(50), this, R.layout.own_chat_message, user_key);
+        mCommentListAdapter = new CommentListAdapter(this, firebaseRef.limitToFirst(50), this, R.layout.own_chat_message, user_id);
         listView.setAdapter(mCommentListAdapter);
         mCommentListAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
@@ -120,17 +120,17 @@ public class ProfessorCommentActivity extends AppCompatActivity {
 
     private void loadUser(){
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
-        user_name = prefs.getString("user_key", null);
-        user_key = prefs.getString("user_key", null);
+        user_name = prefs.getString("user_name", null);
+        user_id = prefs.getString("user_id", null);
     }
 
     private void sendMessage() {
 
-        if(user_name!=null && user_key!=null) {
+        if(user_name!=null && user_id!=null) {
             EditText inputText = (EditText) findViewById(R.id.messageInput);
             String input = inputText.getText().toString();
             if (!input.equals("")) {
-                Comment comment = new Comment(input, user_name, user_key, System.currentTimeMillis());
+                Comment comment = new Comment(input, user_id, user_name, System.currentTimeMillis());
                 firebaseRef.push().setValue(comment);
                 inputText.setText("");
             }
@@ -139,4 +139,28 @@ public class ProfessorCommentActivity extends AppCompatActivity {
         }
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_comments, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.transition.animation_out_1, R.transition.animation_out_2);
+    }
 }

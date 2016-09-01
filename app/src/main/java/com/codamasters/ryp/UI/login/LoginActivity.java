@@ -12,7 +12,7 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
@@ -31,12 +31,9 @@ import com.google.firebase.auth.TwitterAuthProvider;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
-import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
-
-import io.fabric.sdk.android.Fabric;
 
 
 /**
@@ -66,7 +63,6 @@ public class LoginActivity extends AuthActivity implements GoogleApiClient.OnCon
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FacebookSdk.sdkInitialize(getApplicationContext());
 
         setContentView(R.layout.activity_login);
         getWindow().setFeatureInt(Window.FEATURE_PROGRESS, Window.PROGRESS_VISIBILITY_ON);
@@ -130,11 +126,6 @@ public class LoginActivity extends AuthActivity implements GoogleApiClient.OnCon
 
         // Twitter
 
-        TwitterAuthConfig authConfig =  new TwitterAuthConfig(
-                getString(R.string.twitter_consumer_key),
-                getString(R.string.twitter_consumer_secret));
-        Fabric.with(this, new Twitter(authConfig));
-
         tLoginButton.setCallback(new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
@@ -150,34 +141,27 @@ public class LoginActivity extends AuthActivity implements GoogleApiClient.OnCon
 
     }
 
-    private void signOut() {
-        mAuth.signOut();
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-                new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(@NonNull Status status) {
-
-                    }
-                });
-        Twitter.logOut();
-
-    }
 
     private void handleFacebookAccessToken(AccessToken token) {
-        Log.d(TAG, "handleFacebookAccessToken:" + token);
+        Log.d(TAG, "FACEBOOK:" + token);
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         socialSignIn(credential);
     }
 
     private void handleTwitterSession(TwitterSession session) {
+
+
+        Log.d(TAG, "TWITTER:");
+
+
         AuthCredential credential = TwitterAuthProvider.getCredential(session.getAuthToken().token, session.getAuthToken().secret);
         socialSignIn(credential);
 
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+        Log.d(TAG, "GOOGLE:" + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         socialSignIn(credential);
@@ -189,10 +173,24 @@ public class LoginActivity extends AuthActivity implements GoogleApiClient.OnCon
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
+    private void signOut() {
+        mAuth.signOut();
+
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+
+                    }
+                });
+        Twitter.logOut();
+        LoginManager.getInstance().logOut();
+
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
@@ -207,6 +205,7 @@ public class LoginActivity extends AuthActivity implements GoogleApiClient.OnCon
             }
         }else{
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
+            tLoginButton.onActivityResult(requestCode, resultCode, data);
         }
     }
 

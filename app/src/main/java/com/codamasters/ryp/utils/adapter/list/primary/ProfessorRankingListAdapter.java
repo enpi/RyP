@@ -1,8 +1,10 @@
 package com.codamasters.ryp.utils.adapter.list.primary;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -66,7 +68,13 @@ public class ProfessorRankingListAdapter extends FirebaseListAdapter<Professor> 
         textView.setText(professor.getName());
 
         textView = (TextView) view.findViewById(R.id.num_votes);
-        textView.setText(String.valueOf(professor.getNumVotes()));
+        int total = professor.getTotalSkillRating1() + professor.getTotalSkillRating2() + professor.getTotalSkillRating3() + professor.getTotalSkillRating4() + professor.getTotalSkillRating5();
+
+        double rating = 0;
+
+        if(professor.getNumVotes() != 0){
+            rating = (float) total / ( 5 * professor.getNumVotes() );
+        }        textView.setText(String.format("%.1f", rating) + "  (" + professor.getNumVotes() + ")");
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,7 +86,9 @@ public class ProfessorRankingListAdapter extends FirebaseListAdapter<Professor> 
                 intent.putExtra("professor", json);
 
                 intent.putExtra("professor_key", key);
-                context.startActivity(intent);
+
+                Bundle bndlanimation = ActivityOptions.makeCustomAnimation(context, R.transition.animation_in_1,R.transition.animation_in_2).toBundle();
+                context.startActivity(intent, bndlanimation);
             }
         });
 

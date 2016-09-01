@@ -1,5 +1,6 @@
 package com.codamasters.ryp.UI.login;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.codamasters.ryp.R;
 import com.codamasters.ryp.UI.ranking.RankingPrimaryActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -29,6 +31,8 @@ public class AuthActivity extends AppCompatActivity {
 
     private String user_id, user_name, user_email, user_password;
 
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,14 +42,32 @@ public class AuthActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                user.getToken(true);
                 if (user != null) {
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                    user.getToken(true);
+
+
+                    /*
+                    user_id = user.getUid();
+                    user_name = user.getDisplayName();
+                    user_email = user.getEmail();
+
+                    saveUser();
+
+                    Intent intent = new Intent(AuthActivity.this, RankingPrimaryActivity.class);
+                    finish();
+                    startActivity(intent);
+                    */
+
                 } else {
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
             }
         };
+
+        if(getUser()){
+            doLogin();
+        }
     }
 
     @Override
@@ -62,12 +84,31 @@ public class AuthActivity extends AppCompatActivity {
         }
     }
 
+    private void signOut() {
+        mAuth.signOut();
+
+        user_name = null;
+        user_email = null;
+        user_id = null;
+        user_password = null;
+
+        saveUser();
+    }
+
     public void socialSignIn(final AuthCredential credential){
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.wait));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
+
+                        progressDialog.dismiss();
 
                         if (!task.isSuccessful()) {
 
@@ -85,24 +126,28 @@ public class AuthActivity extends AppCompatActivity {
                             user_email = task.getResult().getUser().getEmail();
                             task.getResult().getUser().getPhotoUrl();
 
-
                             saveUser();
 
-                            Intent intent = new Intent(AuthActivity.this, RankingPrimaryActivity.class);
-                            finish();
-                            startActivity(intent);
+                            doLogin();
+
                         }
                     }
                 });
     }
 
 
+    private void doLogin(){
+        Intent intent = new Intent(AuthActivity.this, RankingPrimaryActivity.class);
+        finish();
+        startActivity(intent);
+    }
+
     private void saveUser(){
         SharedPreferences.Editor editor = getSharedPreferences(PREF_TAG, MODE_PRIVATE).edit();
         editor.putString("user_name", user_name);
         editor.putString("user_id", user_id);
         editor.putString("user_email", user_email);
-        editor.putString("user_password", user_password);
+        //editor.putString("user_password", user_password);
         editor.commit();
     }
 
@@ -111,9 +156,9 @@ public class AuthActivity extends AppCompatActivity {
         user_name = prefs.getString("user_name", null);
         user_id = prefs.getString("user_id", null);
         user_email = prefs.getString("user_email", null);
-        user_password = prefs.getString("user_password", null);
+        //user_password = prefs.getString("user_password", null);
 
-        if(user_name!=null && user_id!=null && user_email!=null && user_password!=null)
+        if(user_name!=null && user_id!=null && user_email!=null)
             return true;
 
         return false;

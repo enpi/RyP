@@ -9,7 +9,7 @@ public class University {
     private Location location;
     private int numVotes;
     private double sumRating;
-    private double sumElo;
+    private double elo;
 
     public University(){
 
@@ -19,7 +19,7 @@ public class University {
         this.name = name;
         this.numVotes = 0;
         this.sumRating = 0;
-        this.sumElo = 0;
+        this.elo = 0;
         this.location = new Location(13.1321, 35.31231);
     }
 
@@ -39,10 +39,6 @@ public class University {
         return sumRating;
     }
 
-    public double getSumElo() {
-        return sumElo;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -59,7 +55,11 @@ public class University {
         this.sumRating = sumRating;
     }
 
-    public void setSumElo(double sumElo) {
-        this.sumElo = sumElo;
+    public double getElo() {
+        return elo;
+    }
+
+    public void setElo(double elo) {
+        this.elo = elo;
     }
 }

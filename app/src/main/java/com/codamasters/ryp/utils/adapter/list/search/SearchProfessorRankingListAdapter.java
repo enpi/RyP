@@ -1,8 +1,10 @@
 package com.codamasters.ryp.utils.adapter.list.search;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -35,7 +37,7 @@ public class SearchProfessorRankingListAdapter extends CustomListAdapter<Profess
     public View getView(int i, View view, ViewGroup viewGroup) {
 
         final Professor professor = mModels.get(i);
-        //final String key = mKeys.get(i);
+        final String key = mKeys.get(i);
 
         if (view==null) {
             view = mInflater.inflate(R.layout.ranking_list_row, viewGroup, false);
@@ -48,7 +50,16 @@ public class SearchProfessorRankingListAdapter extends CustomListAdapter<Profess
         textView.setText(professor.getName());
 
         textView = (TextView) view.findViewById(R.id.num_votes);
-        textView.setText(String.valueOf(professor.getNumVotes()));
+
+        int total = professor.getTotalSkillRating1() + professor.getTotalSkillRating2() + professor.getTotalSkillRating3() + professor.getTotalSkillRating4() + professor.getTotalSkillRating5();
+
+        double rating = 0;
+
+        if(professor.getNumVotes() != 0){
+            rating = (float) total / ( 5 * professor.getNumVotes() );
+        }
+
+        textView.setText(String.format("%.1f", rating) + "  (" + professor.getNumVotes() + ")");
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,8 +70,10 @@ public class SearchProfessorRankingListAdapter extends CustomListAdapter<Profess
                 String json = gson.toJson(professor);
                 intent.putExtra("professor", json);
 
-                //intent.putExtra("professor_key", key);
-                context.startActivity(intent);
+                intent.putExtra("professor_key", key);
+
+                Bundle bndlanimation = ActivityOptions.makeCustomAnimation(context, R.transition.animation_in_1,R.transition.animation_in_2).toBundle();
+                context.startActivity(intent, bndlanimation);
             }
         });
 

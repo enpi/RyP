@@ -36,6 +36,11 @@ public class SearchListFragment extends Fragment {
     public static ArrayList<Degree> degrees;
     public static ArrayList<Professor> professors;
 
+    public static ArrayList<String> universitiesKeys;
+    public static ArrayList<String> degreesKeys;
+    public static ArrayList<String> professorsKeys;
+
+
     public SearchListFragment() {
     }
 
@@ -61,16 +66,16 @@ public class SearchListFragment extends Fragment {
 
         final ListView listView = (ListView) rootView.findViewById(R.id.ranking_lv);
 
+
         switch (getArguments().getString(ARG_SECTION_REFERENCE)) {
             case "university":
-                listAdapter = new SearchUniversityRankingListAdapter(getActivity(), universities, null, getActivity());
-                //listAdapter = new ProfessorRankingListAdapter(getActivity(), query, getActivity(), R.layout.ranking_list_row);
+                listAdapter = new SearchUniversityRankingListAdapter(getActivity(), universities, universitiesKeys, getActivity());
                 break;
             case "degree":
-                listAdapter = new SearchDegreeRankingListAdapter(getActivity(), degrees, null, getActivity());
+                listAdapter = new SearchDegreeRankingListAdapter(getActivity(), degrees, degreesKeys, getActivity());
                 break;
             case "professor":
-                listAdapter = new SearchProfessorRankingListAdapter(getActivity(), professors, null, getActivity());
+                listAdapter = new SearchProfessorRankingListAdapter(getActivity(), professors, professorsKeys, getActivity());
                 break;
         }
 
@@ -89,5 +94,17 @@ public class SearchListFragment extends Fragment {
 
     public static void setProfessors(ArrayList<Professor> professors) {
         SearchListFragment.professors = professors;
+    }
+
+    public static void setUniversitiesKeys(ArrayList<String> universitiesKeys) {
+        SearchListFragment.universitiesKeys = universitiesKeys;
+    }
+
+    public static void setDegreesKeys(ArrayList<String> degreesKeys) {
+        SearchListFragment.degreesKeys = degreesKeys;
+    }
+
+    public static void setProfessorsKeys(ArrayList<String> professorsKeys) {
+        SearchListFragment.professorsKeys = professorsKeys;
     }
 }
