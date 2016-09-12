@@ -3,6 +3,7 @@ package com.codamasters.ryp.UI.ranking;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -105,7 +106,10 @@ public class RankingDegreeActivity extends AppCompatActivity implements Response
         }
 
         ((TextView) findViewById(R.id.degreeRating)).setText(String.format("%.1f", skillRating) + " (" + degree.getNumVotes() + ")");
-        ((TextView) findViewById(R.id.degreeName)).setText(degree.getName() + " (" + degree.getUniversityName() + ")");
+        ((TextView) findViewById(R.id.degreeName)).setText(degree.getName() + " (" + degree.getUniversityAcronym() + ")");
+        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        collapsingToolbarLayout.setTitle(degree.getName());
+        collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color.transparent));
 
 
         spinKitView = (SpinKitView) findViewById(R.id.spin_kit_web);

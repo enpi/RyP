@@ -33,6 +33,7 @@ public class ProfessorCommentActivity extends AppCompatActivity {
     private String user_name;
     private String user_id;
     private String title;
+    private boolean anonymous;
 
     private DatabaseReference firebaseRef;
 
@@ -70,7 +71,10 @@ public class ProfessorCommentActivity extends AppCompatActivity {
         findViewById(R.id.sendButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendMessage();
+                if(!anonymous)
+                    sendMessage();
+                else
+                    Toast.makeText(getApplicationContext(), "You can't comment a professor being anonymous.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -122,6 +126,7 @@ public class ProfessorCommentActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         user_name = prefs.getString("user_name", null);
         user_id = prefs.getString("user_id", null);
+        anonymous = prefs.getBoolean("anonymous", true);
     }
 
     private void sendMessage() {

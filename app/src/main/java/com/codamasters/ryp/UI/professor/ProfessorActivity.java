@@ -57,6 +57,7 @@ public class ProfessorActivity extends AppCompatActivity {
     private DatabaseReference firebaseRef;
     private boolean update=false;
     private Rating lastRating;
+    private boolean anonymous;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +126,7 @@ public class ProfessorActivity extends AppCompatActivity {
     private void loadUser(){
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         user_id = prefs.getString("user_id", null);
+        anonymous = prefs.getBoolean("anonymous", true);
     }
 
     private void loadProfessor(){
@@ -223,8 +225,6 @@ public class ProfessorActivity extends AppCompatActivity {
         // TODO : ADD RATING UPDATE
         long skillRating[] = {(int) rbSkill1.getRating(),(int) rbSkill2.getRating(), (int) rbSkill3.getRating(), (int) rbSkill4.getRating(), (int) rbSkill5.getRating()};
         float skillRatingValue = (float) ( skillRating[0] + skillRating[1] + skillRating[2] + skillRating[3] + skillRating[4] ) / 5;
-        Log.d("SKILL RATING", String.valueOf(skillRatingValue));
-
         Rating rating = new Rating(skillRating[0], skillRating[1], skillRating[2], skillRating[3], skillRating[4], System.currentTimeMillis());
 
         // must be sync, more users are accessing the same db location
@@ -238,9 +238,6 @@ public class ProfessorActivity extends AppCompatActivity {
         EloCalculator eloCalculator = new EloCalculator();
         double elo = eloCalculator.getNewElo(- professor.getElo(), skillRatingValue);
 
-        Log.d("NEW ELO", String.valueOf(elo));
-
-
         if(lastRating!=null){
             skillRating[0] = skillRating[0] - lastRating.getSkillRating1();
             skillRating[1] = skillRating[1] - lastRating.getSkillRating2();
@@ -248,17 +245,12 @@ public class ProfessorActivity extends AppCompatActivity {
             skillRating[3] = skillRating[3] - lastRating.getSkillRating4();
             skillRating[4] = skillRating[4] - lastRating.getSkillRating5();
 
-            skillRatingValue = ( skillRating[0] + skillRating[1] + skillRating[2] + skillRating[3] + skillRating[4] ) / 5;
-            double lastSkillRatingValue = (lastRating.getSkillRating1() + lastRating.getSkillRating2() + lastRating.getSkillRating3() + lastRating.getSkillRating4() + lastRating.getSkillRating5()) / 5;
+            skillRatingValue = (float) ( skillRating[0] + skillRating[1] + skillRating[2] + skillRating[3] + skillRating[4] ) / 5;
+            double lastSkillRatingValue = (double) (lastRating.getSkillRating1() + lastRating.getSkillRating2() + lastRating.getSkillRating3() + lastRating.getSkillRating4() + lastRating.getSkillRating5()) / 5;
             elo -= eloCalculator.getNewElo(- professor.getElo(), lastSkillRatingValue);
         }
 
-        Log.d("UPDATE ELO", String.valueOf(elo));
-        Log.d("UPDATE SKILL RATING", String.valueOf(skillRatingValue));
-
-
         lastRating = rating;
-
 
         updateProfessor(skillRating, elo);
         for(String degree : degree_keys) {
@@ -341,8 +333,6 @@ public class ProfessorActivity extends AppCompatActivity {
 
         firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor").child(professor_key).child("numVotes");
 
-        Log.d("VOTE", "ADDVOTE");
-
         firebaseRef.runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
@@ -378,12 +368,16 @@ public class ProfessorActivity extends AppCompatActivity {
 
     private void updateDegree(String degree, final float skill, final double elo){
 
+        Log.d("UPDATE", "DEGREE");
+
+
         firebaseRef = FirebaseDatabase.getInstance().getReference().child("degree").child(degree).child("sumRating");
 
         firebaseRef.runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
-                mutableData.setValue(mutableData.getValue(Float.class) + skill);
+                Log.d("UPDATE", "ADDING SKILL !!!!" + String.valueOf(skill));
+                mutableData.setValue(mutableData.getValue(Float.class) +  skill);
                 return Transaction.success(mutableData);
             }
 
@@ -396,7 +390,7 @@ public class ProfessorActivity extends AppCompatActivity {
             }
         });
 
-        firebaseRef = FirebaseDatabase.getInstance().getReference().child("degree").child(degree).child("sumElo");
+        firebaseRef = FirebaseDatabase.getInstance().getReference().child("degree").child(degree).child("elo");
 
         firebaseRef.runTransaction(new Transaction.Handler() {
             @Override
@@ -435,12 +429,15 @@ public class ProfessorActivity extends AppCompatActivity {
 
     private void updateUniversity(final float skill, final double elo){
 
+        Log.d("UPDATE", "UNIVERSITY");
+
+
         firebaseRef = FirebaseDatabase.getInstance().getReference().child("university").child(university_key).child("sumRating");
 
         firebaseRef.runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
-                mutableData.setValue(mutableData.getValue(Float.class) + skill);
+                mutableData.setValue(mutableData.getValue(Float.class) +  skill);
                 return Transaction.success(mutableData);
             }
 
@@ -453,7 +450,7 @@ public class ProfessorActivity extends AppCompatActivity {
             }
         });
 
-        firebaseRef = FirebaseDatabase.getInstance().getReference().child("university").child(university_key).child("sumElo");
+        firebaseRef = FirebaseDatabase.getInstance().getReference().child("university").child(university_key).child("elo");
 
         firebaseRef.runTransaction(new Transaction.Handler() {
             @Override
@@ -591,7 +588,10 @@ public class ProfessorActivity extends AppCompatActivity {
                 startActivity(intentStats, bndlanimation);
                 return true;
             case R.id.sendRating:
-                sendRating();
+                if(!anonymous)
+                    sendRating();
+                else
+                    Toast.makeText(this, "You can't rate a professor being anonymous.", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -75,12 +75,13 @@ public class CustomJsonParser {
             }
         }
 
-        sortArraysByElo();
+        //sortArraysByElo();
     }
 
     private void addUniversity(JSONObject object) throws JSONException {
         University university = new University();
         university.setName(object.getString("name"));
+        university.setAcronym(object.getString("acronym"));
         university.setElo(object.getDouble("elo"));
         university.setSumRating(object.getDouble("sumRating"));
         university.setNumVotes(object.getInt("numVotes"));
@@ -99,7 +100,7 @@ public class CustomJsonParser {
         degree.setSumRating(object.getDouble("sumRating"));
         degree.setNumVotes(object.getInt("numVotes"));
         degree.setFaculty(object.getString("faculty"));
-        degree.setUniversityName(object.getString("universityName"));
+        degree.setUniversityAcronym(object.getString("universityAcronym"));
         degree.setUniversityID(object.getString("universityID"));
 
         Type listType = new TypeToken<Location>() {}.getType();

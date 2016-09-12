@@ -6,6 +6,7 @@ package com.codamasters.ryp.model;
 public class University {
 
     private String name;
+    private String acronym;
     private Location location;
     private int numVotes;
     private double sumRating;
@@ -15,12 +16,13 @@ public class University {
 
     }
 
-    public University(String name){
+    public University(String name, String acronym, Location location){
         this.name = name;
+        this.acronym = acronym;
         this.numVotes = 0;
         this.sumRating = 0;
         this.elo = 0;
-        this.location = new Location(13.1321, 35.31231);
+        this.location = location;
     }
 
     public String getName() {
@@ -61,5 +63,13 @@ public class University {
 
     public void setElo(double elo) {
         this.elo = elo;
+    }
+
+    public String getAcronym() {
+        return acronym;
+    }
+
+    public void setAcronym(String acronym) {
+        this.acronym = acronym;
     }
 }

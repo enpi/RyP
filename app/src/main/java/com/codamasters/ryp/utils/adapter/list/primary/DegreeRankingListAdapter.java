@@ -65,7 +65,7 @@ public class DegreeRankingListAdapter extends FirebaseListAdapter<Degree> {
         textView.setText(String.valueOf(i+1));
 
         textView = (TextView) view.findViewById(R.id.name);
-        textView.setText(degree.getName() + " (" + degree.getUniversityName() + ")");
+        textView.setText(degree.getName() + " (" + degree.getUniversityAcronym() + ")");
 
         textView = (TextView) view.findViewById(R.id.num_votes);
         double skillRating = 0;

@@ -3,6 +3,7 @@ package com.codamasters.ryp.UI.ranking;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -19,9 +20,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.codamasters.ryp.R;
+import com.codamasters.ryp.UI.map.MapActivity;
 import com.codamasters.ryp.UI.search.SearchListFragment;
 import com.codamasters.ryp.UI.university.UniversityCommentActivity;
-import com.codamasters.ryp.UI.map.MapActivity;
 import com.codamasters.ryp.model.University;
 import com.codamasters.ryp.tasks.CustomJSONObjectRequest;
 import com.codamasters.ryp.tasks.CustomVolleyRequestQueue;
@@ -130,6 +131,9 @@ public class RankingUniversityActivity extends AppCompatActivity implements Resp
 
         ((TextView) findViewById(R.id.universityRating)).setText(String.format("%.1f", skillRating) + " (" + university.getNumVotes() + ")");
         ((TextView) findViewById(R.id.universityName)).setText(university.getName());
+        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        collapsingToolbarLayout.setTitle(university.getName());
+        collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color.transparent));
 
 
         spinKitView = (SpinKitView) findViewById(R.id.spin_kit_web);

@@ -29,9 +29,9 @@ public class Professor {
 
     }
 
-    public Professor(String name, String universityID){
+    public Professor(String name, String webUrl, String universityID, String degreeID){
         this.name = name;
-        this.webUrl = "google.es";
+        this.webUrl = webUrl;
         this.totalSkillRating1 = 0;
         this.totalSkillRating2 = 0;
         this.totalSkillRating3 = 0;
@@ -40,7 +40,7 @@ public class Professor {
         this.numVotes = 0;
         this.degreeIDs = new ArrayList<>();
         this.universityID = universityID;
-        this.degreeIDs.add("-KPSPpKYZUCS3yYMbbI0");
+        this.degreeIDs.add(degreeID);
     }
 
     public String getName() {

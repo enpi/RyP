@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 
 import com.codamasters.ryp.R;
 import com.facebook.AccessToken;
@@ -60,6 +61,9 @@ public class LoginActivity extends AuthActivity implements GoogleApiClient.OnCon
     // Twitter login
     private TwitterLoginButton tLoginButton;
 
+    // Anonymous Login
+    private Button aLoginButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,12 +74,28 @@ public class LoginActivity extends AuthActivity implements GoogleApiClient.OnCon
         initView();
         initLogins();
 
+
+        // Create teacher and send info
+
+        /*
+        DatabaseReference firebaseRef = FirebaseDatabase.getInstance().getReference().child("university");
+        University university = new University("Universidad de Málaga","UMA", new Location(36.7162722, -4.4701534));
+        firebaseRef.push().setValue(university);
+        */
+
+        /*DatabaseReference firebaseRef = FirebaseDatabase.getInstance().getReference().child("professor");
+        Degree degree = new Degree("Ingeniería Informática", "E.T.S.I. INFORMÁTICA", new Location(36.7149781, -4.4779977), "UMA", "-KQvGmZ4X44kMYYSi3JL");
+        Professor professor = new Professor("Rafael Asenjo Plaza", "http://www.ac.uma.es/~asenjo/MainWebPage/index.html", "-KPSOVH-JIRhmwUgErmP", "-KQvHvqcJhJN0QyG-e6u");
+        firebaseRef.push().setValue(professor);*/
+
+
     }
 
     private void initView() {
         fLoginButton = (LoginButton) findViewById(R.id.facebook_button);
         tLoginButton = (TwitterLoginButton) findViewById(R.id.twitter_button);
         gLoginButton = (SignInButton) findViewById(R.id.google_plus_button);
+        aLoginButton = (Button) findViewById(R.id.anonymous_button);
     }
 
     private void initLogins(){
@@ -136,6 +156,13 @@ public class LoginActivity extends AuthActivity implements GoogleApiClient.OnCon
             @Override
             public void failure(TwitterException exception) {
                 Log.w(TAG, "twitterLogin:failure", exception);
+            }
+        });
+
+        aLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                anonymousSignIn();
             }
         });
 

@@ -30,6 +30,7 @@ public class AuthActivity extends AppCompatActivity {
     public FirebaseAuth.AuthStateListener mAuthListener;
 
     private String user_id, user_name, user_email, user_password;
+    private boolean anonymous;
 
     private ProgressDialog progressDialog;
 
@@ -124,6 +125,7 @@ public class AuthActivity extends AppCompatActivity {
                             user_id = task.getResult().getUser().getUid();
                             user_name = task.getResult().getUser().getDisplayName();
                             user_email = task.getResult().getUser().getEmail();
+                            anonymous = false;
                             task.getResult().getUser().getPhotoUrl();
 
                             saveUser();
@@ -133,6 +135,47 @@ public class AuthActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    public void anonymousSignIn(){
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.wait));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        mAuth.signInAnonymously()
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(TAG, "signInAnonymously:onComplete:" + task.isSuccessful());
+
+                        progressDialog.dismiss();
+
+                        if (!task.isSuccessful()) {
+
+                            Toast.makeText(getApplicationContext(), "FRACASO LOGIN!!", Toast.LENGTH_SHORT).show();
+
+                            Log.w(TAG, "signInWithCredential", task.getException());
+                            Toast.makeText(AuthActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }else{
+
+                            Toast.makeText(getApplicationContext(), "EXITO LOGIN!!", Toast.LENGTH_SHORT).show();
+
+                            user_id = task.getResult().getUser().getUid();
+                            user_name = task.getResult().getUser().getDisplayName();
+                            user_email = task.getResult().getUser().getEmail();
+                            anonymous = true;
+                            task.getResult().getUser().getPhotoUrl();
+
+                            saveUser();
+
+                            doLogin();
+                        }
+                    }
+                });
+
+
     }
 
 
@@ -147,6 +190,7 @@ public class AuthActivity extends AppCompatActivity {
         editor.putString("user_name", user_name);
         editor.putString("user_id", user_id);
         editor.putString("user_email", user_email);
+        editor.putBoolean("anonymous", anonymous);
         //editor.putString("user_password", user_password);
         editor.commit();
     }

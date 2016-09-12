@@ -12,22 +12,22 @@ public class Degree {
     private double sumRating;
     private double elo;
 
-    private String universityName;
+    private String universityAcronym;
     private String universityID;
 
     public Degree(){
 
     }
 
-    public Degree(String name){
+    public Degree(String name, String faculty, Location location, String universityAcronym, String universityID){
         this.name = name;
-        this.faculty = "ETSIIT";
-        this.location = new Location(13.1321, 35.31231);
+        this.faculty = faculty;
+        this.location = location;
         this.numVotes = 0;
         this.sumRating = 0;
         this.elo = 0;
-        this.universityName = "UGR";
-        this.universityID = "-KPSOVH-JIRhmwUgErmP";
+        this.universityAcronym = universityAcronym;
+        this.universityID = universityID;
     }
 
     public String getName() {
@@ -78,12 +78,12 @@ public class Degree {
         this.universityID = universityID;
     }
 
-    public String getUniversityName() {
-        return universityName;
+    public String getUniversityAcronym() {
+        return universityAcronym;
     }
 
-    public void setUniversityName(String universityName) {
-        this.universityName = universityName;
+    public void setUniversityAcronym(String universityAcronym) {
+        this.universityAcronym = universityAcronym;
     }
 
     public double getElo() {
@@ -93,5 +93,7 @@ public class Degree {
     public void setElo(double elo) {
         this.elo = elo;
     }
+
+
 }
 

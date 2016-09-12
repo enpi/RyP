@@ -47,7 +47,7 @@ public class SearchDegreeRankingListAdapter extends CustomListAdapter<Degree> {
         textView.setText(String.valueOf(i+1));
 
         textView = (TextView) view.findViewById(R.id.name);
-        textView.setText(degree.getName() + " (" + degree.getUniversityName() + ")");
+        textView.setText(degree.getName() + " (" + degree.getUniversityAcronym() + ")");
         //textView.setText(degree.getName());
 
         textView = (TextView) view.findViewById(R.id.num_votes);

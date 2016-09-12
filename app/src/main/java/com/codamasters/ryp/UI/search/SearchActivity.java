@@ -147,7 +147,7 @@ public class SearchActivity extends AppCompatActivity implements Response.Listen
 
         mQueue = CustomVolleyRequestQueue.getInstance(this.getApplicationContext())
                 .getRequestQueue();
-        String url ="https://bifur-eu-west-1.searchly.com/firebase/_search?q=name:*"+text+"*";
+        String url ="https://bifur-eu-west-1.searchly.com/firebase/_search?q=name:*"+text+"*"+"&sort=elo:asc";
         final CustomJSONObjectRequest jsonRequest = new CustomJSONObjectRequest(Request.Method.GET, url, new JSONObject(), this, this);
         jsonRequest.setTag(REQUEST_TAG);
 
